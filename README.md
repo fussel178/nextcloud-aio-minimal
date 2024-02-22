@@ -36,6 +36,28 @@ A minimal setup of the Nextcloud AIO Docker setup
    > docker compose logs -f
    > ```
 
+## Update
+
+> Before updating, please check, if any source files changed in the <https://github.com/nextcloud/all-in-one/tree/main/manual-install> directory.
+
+1. Pull the latest images:
+
+   ```shell
+   docker compose pull
+   ```
+
+2. Stop and remove all containers:
+
+   ```shell
+   docker compose down
+   ```
+
+3. Start fresh containers:
+
+   ```shell
+   docker compose up -d
+   ```
+
 ## Acknowledgments
 
 Container images and variable defaults are from <https://github.com/nextcloud/all-in-one>.
