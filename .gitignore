@@ -2,9 +2,4 @@
 /.env
 
 # container volumes
-/webroot
-/apache_data
 /data
-/database
-/database_dump
-/redis

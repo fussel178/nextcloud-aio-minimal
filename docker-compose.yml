@@ -23,8 +23,8 @@ services:
       APACHE_MAX_SIZE: "10737418240"
       APACHE_MAX_TIME: "3600"
     volumes:
-      - "./webroot:/var/www/html:ro"
-      - "./apache_data:/mnt/data:rw"
+      - "nextcloud_aio_webroot:/var/www/html:ro"
+      - "nextcloud_aio_apache:/mnt/data:rw"
     restart: unless-stopped
     networks:
       - nextcloud-aio
@@ -43,7 +43,7 @@ services:
       - "nextcloud-aio-database"
       - "nextcloud-aio-redis"
     volumes:
-      - "./webroot:/var/www/html:rw"
+      - "nextcloud_aio_webroot:/var/www/html:rw"
       - "${DATA_DIR}:/mnt/ncdata:rw"
     env_file: .env
     environment:
@@ -80,8 +80,8 @@ services:
     image: "nextcloud/aio-postgresql:latest"
     init: true
     volumes:
-      - "./database:/var/lib/postgresql/data:rw"
-      - "./database_dump:/mnt/data:rw"
+      - "nextcloud_aio_database:/var/lib/postgresql/data:rw"
+      - "nextcloud_aio_database_dump:/mnt/data:rw"
     env_file: .env
     environment:
       POSTGRES_DB: "nextcloud_database"
@@ -100,11 +100,22 @@ services:
     init: true
     env_file: .env
     volumes:
-      - "./redis:/data:rw"
+      - "nextcloud_aio_redis:/data:rw"
     restart: unless-stopped
     networks:
       - nextcloud-aio
     read_only: true
+
+##
+## volumes
+##
+
+volumes:
+  nextcloud_aio_apache:
+  nextcloud_aio_webroot:
+  nextcloud_aio_database:
+  nextcloud_aio_database_dump:
+  nextcloud_aio_redis:
 
 ##
 ## networks
