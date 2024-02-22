@@ -18,6 +18,7 @@ services:
       - "0.0.0.0:${EXPOSED_PORT}:11000"
     env_file: .env
     environment:
+      NEXTCLOUD_HOST: "nextcloud-aio-nextcloud"
       # always use port 11000 internally
       APACHE_PORT: "11000"
       APACHE_MAX_SIZE: "10737418240"
