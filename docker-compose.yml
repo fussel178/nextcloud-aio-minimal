@@ -63,7 +63,7 @@ services:
       OVERWRITEPROTOCOL: "https"
       # path setup
       NEXTCLOUD_DATA_DIR: "/mnt/ncdata"
-      # disable all additional services (additional setup required)
+      # disable all additional services (setup required)
       CLAMAV_ENABLED: "no"
       ONLYOFFICE_ENABLED: "no"
       COLLABORA_ENABLED: "no"
