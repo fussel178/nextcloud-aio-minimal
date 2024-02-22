@@ -14,11 +14,13 @@ services:
     init: true
     depends_on:
       - "nextcloud-aio-nextcloud"
+      - "nextcloud-aio-notify-push"
     ports:
       - "0.0.0.0:${EXPOSED_PORT}:11000"
     env_file: .env
     environment:
       NEXTCLOUD_HOST: "nextcloud-aio-nextcloud"
+      NOTIFY_PUSH_HOST: "nextcloud-aio-notify-push"
       # always use port 11000 internally
       APACHE_PORT: "11000"
       APACHE_MAX_SIZE: "10737418240"
@@ -76,6 +78,24 @@ services:
     restart: unless-stopped
     networks:
       - nextcloud-aio
+
+  # runs the notify-push service
+  # see https://github.com/nextcloud/notify_push
+  nextcloud-aio-notify-push:
+    image: "nextcloud/aio-notify-push:latest"
+    init: true
+    volumes:
+      - "nextcloud_aio_webroot:/nextcloud:ro"
+    env_file: .env
+    environment:
+      NEXTCLOUD_HOST: "nextcloud-aio-nextcloud"
+      REDIS_HOST: "nextcloud-aio-redis"
+      POSTGRES_HOST: "nextcloud-aio-database"
+      POSTGRES_DB: "nextcloud_database"
+    restart: unless-stopped
+    networks:
+      - nextcloud-aio
+    read_only: true
 
   nextcloud-aio-database:
     image: "nextcloud/aio-postgresql:latest"
