@@ -1,0 +1,115 @@
+##
+## Minimal Nextcloud AIO docker-compose.yml setup
+## by Ludwig Richter <riluzm@posteo.de>
+##
+
+##
+## services
+##
+
+services:
+
+  nextcloud-aio-apache:
+    image: "nextcloud/aio-apache:latest"
+    init: true
+    depends_on:
+      - "nextcloud-aio-nextcloud"
+    ports:
+      - "0.0.0.0:${EXPOSED_PORT}:11000"
+    env_file: .env
+    environment:
+      # always use port 11000 internally
+      APACHE_PORT: "11000"
+      APACHE_MAX_SIZE: "10737418240"
+      APACHE_MAX_TIME: "3600"
+    volumes:
+      - "./webroot:/var/www/html:ro"
+      - "./apache_data:/mnt/data:rw"
+    restart: unless-stopped
+    networks:
+      - nextcloud-aio
+    read_only: true
+    tmpfs:
+      - /var/log/supervisord
+      - /var/run/supervisord
+      - /usr/local/apache2/logs
+      - /tmp
+      - /home/www-data
+
+  nextcloud-aio-nextcloud:
+    image: "nextcloud/aio-nextcloud:latest"
+    init: true
+    depends_on:
+      - "nextcloud-aio-database"
+      - "nextcloud-aio-redis"
+    volumes:
+      - "./webroot:/var/www/html:rw"
+      - "${DATA_DIR}:/mnt/ncdata:rw"
+    env_file: .env
+    environment:
+      # container/php setup
+      PHP_UPLOAD_LIMIT: "10G"
+      PHP_MEMORY_LIMIT: "512M"
+      PHP_MAX_TIME: "3600"
+      APACHE_PORT: "11000"
+      APACHE_IP_BINDING: "0.0.0.0"
+      # postgres setup
+      POSTGRES_HOST: "nextcloud-aio-database"
+      POSTGRES_DB: "nextcloud_database"
+      # redis setup
+      REDIS_HOST: "nextcloud-aio-redis"
+      # domain setup
+      OVERWRITEHOST: "${NC_DOMAIN}"
+      OVERWRITEPROTOCOL: "https"
+      # path setup
+      NEXTCLOUD_DATA_DIR: "/mnt/ncdata"
+      # disable all additional services (additional setup required)
+      CLAMAV_ENABLED: "no"
+      ONLYOFFICE_ENABLED: "no"
+      COLLABORA_ENABLED: "no"
+      TALK_ENABLED: "no"
+      IMAGINARY_ENABLED: "no"
+      FULLTEXTSEARCH_ENABLED: "no"
+      TALK_RECORDING_ENABLED: "no"
+    stop_grace_period: 600s
+    restart: unless-stopped
+    networks:
+      - nextcloud-aio
+
+  nextcloud-aio-database:
+    image: "nextcloud/aio-postgresql:latest"
+    init: true
+    volumes:
+      - "./database:/var/lib/postgresql/data:rw"
+      - "./database_dump:/mnt/data:rw"
+    env_file: .env
+    environment:
+      POSTGRES_DB: "nextcloud_database"
+      PGTZ: "${TZ}"
+    stop_grace_period: 1800s
+    restart: unless-stopped
+    shm_size: 268435456
+    networks:
+      - nextcloud-aio
+    read_only: true
+    tmpfs:
+      - /var/run/postgresql
+
+  nextcloud-aio-redis:
+    image: "nextcloud/aio-redis:latest"
+    init: true
+    env_file: .env
+    volumes:
+      - "./redis:/data:rw"
+    restart: unless-stopped
+    networks:
+      - nextcloud-aio
+    read_only: true
+
+##
+## networks
+##
+
+networks:
+  nextcloud-aio:
+
